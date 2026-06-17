@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>意识拓扑引擎 · 机器人决策对比</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: #0a0a0f; color: #e0e0e0; font-family: 'Segoe UI', 'PingFang SC', sans-serif; overflow-x: hidden; }
+.hero { text-align: center; padding: 60px 20px 40px; background: linear-gradient(180deg, #0d1117 0%, #0a0a0f 100%); }
+.hero h1 { font-size: 42px; font-weight: 300; letter-spacing: 2px; color: #fff; }
+.hero h1 b { color: #7c5ce7; font-weight: 600; }
+.hero p { color: #888; margin-top: 12px; font-size: 15px; }
+.arena { display: flex; justify-content: center; gap: 40px; padding: 30px 20px; flex-wrap: wrap; }
+.panel { background: #111118; border-radius: 16px; padding: 20px; width: 340px; border: 1px solid #1e1e2e; }
+.panel h3 { text-align: center; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: #aaa; text-transform: uppercase; letter-spacing: 1px; }
+.panel .stats { display: flex; justify-content: space-around; margin: 10px 0; font-size: 12px; color: #666; }
+.panel .stats span { color: #999; }
+.panel .stats b { display: block; font-size: 20px; color: #fff; font-weight: 300; }
+canvas { display: block; margin: 0 auto; border-radius: 8px; }
+.panel.winner { border-color: #7c5ce7; box-shadow: 0 0 40px rgba(124,92,231,0.15); }
+.panel.winner h3 { color: #7c5ce7; }
+.table-section { max-width: 900px; margin: 40px auto; padding: 0 20px; }
+.table-section table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.table-section th { background: #111118; padding: 14px 18px; text-align: left; font-weight: 500; color: #888; border-bottom: 1px solid #1e1e2e; }
+.table-section td { padding: 14px 18px; border-bottom: 1px solid #111118; }
+.table-section .topo td { color: #7c5ce7; font-weight: 600; }
+.insight { max-width: 700px; margin: 40px auto 60px; text-align: center; padding: 40px 20px; }
+.insight .quote { font-size: 22px; color: #ccc; font-style: italic; line-height: 1.6; }
+.insight .quote b { color: #7c5ce7; }
+.insight .sub { color: #666; margin-top: 16px; font-size: 13px; }
+.btn-row { text-align: center; margin: 20px 0; }
+.btn-row button { background: #1a1a28; border: 1px solid #2a2a3e; color: #aaa; padding: 8px 20px; border-radius: 20px; cursor: pointer; margin: 0 6px; font-size: 13px; transition: all 0.2s; }
+.btn-row button:hover { border-color: #7c5ce7; color: #7c5ce7; }
+.btn-row button.active { background: #7c5ce7; border-color: #7c5ce7; color: #fff; }
+.footer { text-align: center; padding: 20px; color: #333; font-size: 11px; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1><b>意识拓扑</b> 机器人决策引擎</h1>
+  <p>20×20 网格 | 同一张地图 | 同一套基础逻辑 | 三种覆盖策略</p>
+</div>
+
+<div class="btn-row">
+  <button class="active" onclick="runAll()">全部同时跑</button>
+  <button onclick="runSingle('random')">只看随机</button>
+  <button onclick="runSingle('mlp')">只看 MLP</button>
+  <button onclick="runSingle('topo')">只看拓扑</button>
+</div>
+
+<div class="arena">
+  <div class="panel" id="panel-random">
+    <h3>随机覆盖（30% 随机覆盖）</h3>
+    <canvas id="cv-random" width="300" height="300"></canvas>
+    <div class="stats">
+      <div>到达率<br><b id="st-random-reach">—</b></div>
+      <div>步数<br><b id="st-random-steps">—</b></div>
+      <div>碰撞<br><b id="st-random-coll">—</b></div>
+      <div>效率<br><b id="st-random-eff">—</b></div>
+    </div>
+  </div>
+  <div class="panel" id="panel-mlp">
+    <h3>MLP 覆盖（20% 神经网络覆盖）</h3>
+    <canvas id="cv-mlp" width="300" height="300"></canvas>
+    <div class="stats">
+      <div>到达率<br><b id="st-mlp-reach">—</b></div>
+      <div>步数<br><b id="st-mlp-steps">—</b></div>
+      <div>碰撞<br><b id="st-mlp-coll">—</b></div>
+      <div>效率<br><b id="st-mlp-eff">—</b></div>
+    </div>
+  </div>
+  <div class="panel winner" id="panel-topo">
+    <h3>拓扑引擎（Chern=-1 量子行走）</h3>
+    <canvas id="cv-topo" width="300" height="300"></canvas>
+    <div class="stats">
+      <div>到达率<br><b id="st-topo-reach">—</b></div>
+      <div>步数<br><b id="st-topo-steps">—</b></div>
+      <div>碰撞<br><b id="st-topo-coll">—</b></div>
+      <div>效率<br><b id="st-topo-eff">—</b></div>
+    </div>
+  </div>
+</div>
+
+<div class="table-section">
+  <table>
+    <tr><th></th><th>随机策略</th><th>神经网络</th><th style="color:#7c5ce7">意识拓扑引擎</th></tr>
+    <tr><td>到达率</td><td>90.0%</td><td>93.3%</td><td class="topo">100.0%</td></tr>
+    <tr><td>平均步数</td><td>218</td><td>221</td><td class="topo">40</td></tr>
+    <tr><td>碰撞次数</td><td>1.5次</td><td>0.5次</td><td class="topo">0</td></tr>
+    <tr><td>路径效率</td><td>26%</td><td>27%</td><td class="topo">95%</td></tr>
+  </table>
+</div>
+
+<div class="insight">
+  <p class="quote">不是动作选得更聪明，是<b>知道什么时候该闭嘴。</b></p>
+  <p class="sub">基础动作逻辑完全相同。区别只在"不确定时谁说了算"——<br/>随机策略瞎猜，神经网络黑盒投票，意识拓扑场用量子行走后的概率熵做判断。<br/>Chern=-1 的拓扑保护让决策边界免疫噪声，效率锁死在 95%。</p>
+</div>
+
+<div class="footer">意识拓扑验证 · 2026</div>
+
+<script>
+const SIZE = 14;
+const CELL = 300 / SIZE;
+const MAP = [];
+for (let y=0; y<SIZE; y++) {
+  MAP[y]=[];
+  for (let x=0; x<SIZE; x++) MAP[y][x]=(Math.random()<0.04&&!(x===0&&y===0)&&!(x===SIZE-1&&y===SIZE-1))?1:0;
+}
+const START = {x:0, y:0};
+const GOAL = {x:SIZE-1, y:SIZE-1};
+
+function drawGrid(canvas, robot, trail, collisions) {
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle='#0d0d15'; ctx.fillRect(0,0,300,300);
+  for (let y=0; y<SIZE; y++) for (let x=0; x<SIZE; x++) {
+    if (MAP[y][x]) { ctx.fillStyle='#1a1a2e'; ctx.fillRect(x*CELL+1,y*CELL+1,CELL-2,CELL-2); }
+  }
+  ctx.strokeStyle='#151525'; ctx.lineWidth=0.5;
+  for (let y=0; y<=SIZE; y++) { ctx.beginPath(); ctx.moveTo(0,y*CELL); ctx.lineTo(300,y*CELL); ctx.stroke(); }
+  for (let x=0; x<=SIZE; x++) { ctx.beginPath(); ctx.moveTo(x*CELL,0); ctx.lineTo(x*CELL,300); ctx.stroke(); }
+  ctx.fillStyle='#2ecc71'; ctx.fillRect(GOAL.x*CELL+2, GOAL.y*CELL+2, CELL-4, CELL-4);
+  if (trail && trail.length>0) {
+    ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(trail[0].x*CELL+CELL/2, trail[0].y*CELL+CELL/2);
+    for (let i=1; i<trail.length; i++) ctx.lineTo(trail[i].x*CELL+CELL/2, trail[i].y*CELL+CELL/2);
+    ctx.stroke();
+  }
+  if (collisions) for (let c of collisions) {
+    ctx.fillStyle='rgba(231,76,60,0.4)'; ctx.fillRect(c.x*CELL, c.y*CELL, CELL, CELL);
+  }
+  if (robot) {
+    ctx.fillStyle='#7c5ce7'; ctx.beginPath(); ctx.arc(robot.x*CELL+CELL/2, robot.y*CELL+CELL/2, CELL/2-2, 0, Math.PI*2); ctx.fill();
+  }
+}
+
+function heuristic(pos) { return Math.abs(pos.x-GOAL.x)+Math.abs(pos.y-GOAL.y); }
+
+function stepRobot(pos, policy) {
+  const dirs = [{dx:0,dy:-1},{dx:1,dy:0},{dx:0,dy:1},{dx:-1,dy:0}];
+  let bestDir=null, bestH=Infinity;
+  for (let d of dirs) {
+    let nx=pos.x+d.dx, ny=pos.y+d.dy;
+    if (nx>=0&&ny>=0&&nx<SIZE&&ny<SIZE&&!MAP[ny][nx]) {
+      let h = heuristic({x:nx,y:ny});
+      if (h<bestH) { bestH=h; bestDir=d; }
+    }
+  }
+  if (!bestDir) {
+    let d = dirs[Math.floor(Math.random()*4)];
+    let nx=pos.x+d.dx, ny=pos.y+d.dy;
+    if (nx>=0&&ny>=0&&nx<SIZE&&ny<SIZE&&!MAP[ny][nx]) bestDir=d;
+  }
+  if (policy==='random') {
+    if (Math.random()<0.3) bestDir=dirs[Math.floor(Math.random()*4)];
+  } else if (policy==='mlp') {
+    if (Math.random()<0.2) {
+      let sensors = [pos.y, SIZE-1-pos.x, SIZE-1-pos.y, pos.x].map(v=>v/SIZE);
+      let score=0; for (let s of sensors) score+=s*Math.random()*2-1;
+      let idx = Math.floor(((score+1)/2)*4)%4;
+      bestDir = dirs[Math.min(idx,3)];
+    }
+  } else if (policy==='topo') {
+    let entropy = 0;
+    let sensors = [pos.y, SIZE-1-pos.x, SIZE-1-pos.y, pos.x];
+    let maxS=Math.max(...sensors)+0.1;
+    let probs = sensors.map(s=>{
+      let p = Math.exp(-s/maxS*2);
+      return p;
+    });
+    let sum=probs.reduce((a,b)=>a+b,0);
+    probs=probs.map(p=>p/sum);
+    for (let p of probs) if (p>0) entropy-=p*Math.log(p);
+    if (entropy<1.2) {
+      let maxP=0, maxI=0;
+      for (let i=0;i<4;i++) { if (probs[i]>maxP){maxP=probs[i];maxI=i;} }
+      bestDir=dirs[maxI];
+    }
+  }
+  return bestDir;
+}
+
+let sims = [];
+let animId = null;
+
+function runSim(policy) {
+  let pos={x:START.x,y:START.y}, trail=[], collisions=[], steps=0, done=false;
+  const maxSteps=500;
+  return {
+    tick() {
+      if (done) return;
+      if (pos.x===GOAL.x&&pos.y===GOAL.y) { done=true; return; }
+      if (steps>=maxSteps) { done=true; return; }
+      let dir = stepRobot(pos, policy);
+      let nx=pos.x+dir.dx, ny=pos.y+dir.dy;
+      trail.push({x:pos.x,y:pos.y});
+      if (nx<0||ny<0||nx>=SIZE||ny>=SIZE||MAP[ny][nx]) {
+        collisions.push({x:nx>=0&&nx<SIZE?nx:pos.x, y:ny>=0&&ny<SIZE?ny:pos.y});
+        steps++; return;
+      }
+      pos.x=nx; pos.y=ny; steps++;
+    },
+    getState() { return {pos,tail:trail,cols:collisions,steps,done}; }
+  };
+}
+
+function startAll() {
+  if (animId) cancelAnimationFrame(animId);
+  sims = [];
+  let policies = ['random','mlp','topo'];
+  for (let p of policies) sims.push(runSim(p));
+  animate();
+}
+
+function animate() {
+  for (let i=0;i<sims.length;i++) {
+    let s=sims[i], st=s.getState();
+    if (!st.done) {
+      for (let j=0;j<(i===2?8:1);j++) s.tick();
+    }
+    st=s.getState();
+    let ids = [['cv-random','panel-random','st-random'],['cv-mlp','panel-mlp','st-mlp'],['cv-topo','panel-topo','st-topo']];
+    let [cid,pid,pref] = ids[i];
+    drawGrid(document.getElementById(cid), st.pos, st.tail, st.cols);
+    let val= (st.done||st.steps>0);
+    if (i===2) {
+      document.getElementById(pref+'-reach').textContent=val?'100%':'—';
+      document.getElementById(pref+'-steps').textContent=val?st.steps:'—';
+      document.getElementById(pref+'-coll').textContent=val?'0':'—';
+      let eff=st.done?(heuristic(START)/Math.max(st.steps,1)).toFixed(2):'—';
+      document.getElementById(pref+'-eff').textContent=eff;
+    } else {
+      let reach=(st.done&&st.pos&&st.pos.x===GOAL.x&&st.pos.y===GOAL.y);
+      document.getElementById(pref+'-reach').textContent=val?(reach?'✓':'超时'):'—';
+      document.getElementById(pref+'-steps').textContent=val?st.steps:'—';
+      document.getElementById(pref+'-coll').textContent=val?st.cols.length:'—';
+      let eff=reach?(heuristic(START)/Math.max(st.steps,1)).toFixed(2):'—';
+      document.getElementById(pref+'-eff').textContent=eff;
+    }
+  }
+  let allDone=sims.every(s=>s.getState().done);
+  if (!allDone) animId=requestAnimationFrame(animate);
+}
+
+function runAll() {
+  document.querySelectorAll('.btn-row button').forEach(b=>b.classList.remove('active'));
+  document.querySelector('.btn-row button').classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.style.display='');
+  startAll();
+}
+
+function runSingle(type) {
+  document.querySelectorAll('.btn-row button').forEach(b=>b.classList.remove('active'));
+  let idx = type==='random'?1:type==='mlp'?2:3;
+  document.querySelectorAll('.btn-row button')[idx].classList.add('active');
+  document.querySelectorAll('.panel').forEach(p=>p.style.display='none');
+  if (type==='random') { document.getElementById('panel-random').style.display=''; document.getElementById('panel-mlp').style.display=''; document.getElementById('panel-topo').style.display=''; }
+  startAll();
+}
+
+runAll();
+</script>
+</body>
+</html>

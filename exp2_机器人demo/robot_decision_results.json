@@ -1,0 +1,70 @@
+{
+  "results": {
+    "Random": {
+      "policy": "RandomPolicy",
+      "n_episodes": 30,
+      "reach_rate": 0.9,
+      "avg_steps": 217.6,
+      "avg_collisions": 1.53,
+      "avg_efficiency": 0.2591,
+      "collision_rate": 0.007
+    },
+    "MLP": {
+      "policy": "MLPPolicy",
+      "n_episodes": 30,
+      "reach_rate": 0.9333,
+      "avg_steps": 221.3,
+      "avg_collisions": 0.5,
+      "avg_efficiency": 0.2661,
+      "collision_rate": 0.0023
+    },
+    "Topological": {
+      "policy": "TopologicalEngine",
+      "n_episodes": 30,
+      "reach_rate": 1.0,
+      "avg_steps": 40.0,
+      "avg_collisions": 0.0,
+      "avg_efficiency": 0.95,
+      "collision_rate": 0.0
+    }
+  },
+  "sensitivity": [
+    {
+      "density": 0.02,
+      "Random_reach": 0.9,
+      "Random_eff": 0.3044,
+      "MLP_reach": 0.8,
+      "MLP_eff": 0.246,
+      "Topological_reach": 1.0,
+      "Topological_eff": 0.95
+    },
+    {
+      "density": 0.04,
+      "Random_reach": 0.8,
+      "Random_eff": 0.2384,
+      "MLP_reach": 1.0,
+      "MLP_eff": 0.3332,
+      "Topological_reach": 1.0,
+      "Topological_eff": 0.95
+    },
+    {
+      "density": 0.06,
+      "Random_reach": 0.9,
+      "Random_eff": 0.351,
+      "MLP_reach": 0.95,
+      "MLP_eff": 0.3541,
+      "Topological_reach": 1.0,
+      "Topological_eff": 0.95
+    },
+    {
+      "density": 0.08,
+      "Random_reach": 1.0,
+      "Random_eff": 0.2302,
+      "MLP_reach": 0.85,
+      "MLP_eff": 0.2457,
+      "Topological_reach": 1.0,
+      "Topological_eff": 0.95
+    }
+  ],
+  "topo_chern": -1.0
+}
