@@ -87,7 +87,7 @@ body.fullscreen .table-section,.fullscreen .insight,.fullscreen .footer{display:
   <button onclick="demo.toggleFullscreen()">全屏</button>
   <span class="speed-group">
     <label>速度</label>
-    <input type="range" min="1" max="20" value="8" oninput="demo.setSpeed(this.value)">
+    <input type="range" min="1" max="20" value="2" oninput="demo.setSpeed(this.value)">
   </span>
 </div>
 
@@ -286,7 +286,7 @@ let sims = [];
 let animId = null;
 let autoPlayTimer = null;
 let autoPlayMode = false;
-let speedTicks = 8;  // 拓扑引擎每帧 tick 数
+let speedTicks = 2;  // 拓扑引擎每帧 tick 数
 
 demo.setSpeed = function(v) { speedTicks = parseInt(v); };
 
@@ -351,7 +351,7 @@ function animate() {
   }
 
   if (allDone) {
-    showPopup();
+    setTimeout(showPopup, 1500);
     if (autoPlayMode) {
       autoPlayTimer = setTimeout(() => {
         popupShown = false;
@@ -430,8 +430,18 @@ document.addEventListener('fullscreenchange', () => {
 });
 
 // ── 启动 ──
-generateMap();
-demo.startAll();
+function boot() {
+  generateMap();
+  requestAnimationFrame(() => {
+    demo.startAll();
+  });
+}
+// 确保 DOM 就绪后启动
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
 
 })();
 </script>
