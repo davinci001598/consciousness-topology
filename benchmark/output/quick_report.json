@@ -1,0 +1,38 @@
+[
+  {
+    "model_id": "Random(silence=0.0)",
+    "signal_ratio": 0.5,
+    "silence_rate": 0.0,
+    "overconfidence_rate": 1.0,
+    "coverage": 0.25,
+    "metacognition_score": 0.2375,
+    "rating": "C (元认知能力较弱)"
+  },
+  {
+    "model_id": "Random(silence=0.5)",
+    "signal_ratio": 0.5,
+    "silence_rate": 0.4667,
+    "overconfidence_rate": 0.5333,
+    "coverage": 0.25,
+    "metacognition_score": 0.4242,
+    "rating": "B (元认知能力一般)"
+  },
+  {
+    "model_id": "Heuristic",
+    "signal_ratio": 0.5,
+    "silence_rate": 0.0,
+    "overconfidence_rate": 1.0,
+    "coverage": 0.25,
+    "metacognition_score": 0.2375,
+    "rating": "C (元认知能力较弱)"
+  },
+  {
+    "model_id": "MLP",
+    "signal_ratio": 0.5,
+    "silence_rate": 0.0,
+    "overconfidence_rate": 1.0,
+    "coverage": 0.25,
+    "metacognition_score": 0.2375,
+    "rating": "C (元认知能力较弱)"
+  }
+]
