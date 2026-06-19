@@ -432,9 +432,10 @@ document.addEventListener('fullscreenchange', () => {
 // ── 启动 ──
 function boot() {
   generateMap();
-  requestAnimationFrame(() => {
-    demo.startAll();
-  });
+  // 不再自动启动仿真，避免 CodeBuddy 等预览环境反复弹窗
+  // requestAnimationFrame(() => {
+  //   demo.startAll();
+  // });
 }
 // 确保 DOM 就绪后启动
 if (document.readyState === 'loading') {
